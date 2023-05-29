@@ -132,8 +132,8 @@
                 android:id="@+id/btnff"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginTop="10dp"
                 android:layout_toRightOf="@+id/btnnext"
                 android:background="@drawable/ic_fast_forward"
                 android:contentDescription="Fast forward button">
@@ -144,8 +144,10 @@
                 android:id="@+id/btnfr"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:layout_marginTop="20dp"
                 android:layout_marginLeft="40dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="0dp"
+                android:layout_toStartOf="@+id/btnprev"
                 android:background="@drawable/ic_fast_rewind"
                 android:contentDescription="Rewind Button">
 

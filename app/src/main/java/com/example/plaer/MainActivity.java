@@ -1,11 +1,13 @@
 package com.example.plaer;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.Manifest;
 import android.content.Intent;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -14,6 +16,8 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.gauravk.audiovisualizer.visualizer.BarVisualizer;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -22,7 +26,7 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.karumi.dexter.listener.single.PermissionListener;
-
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,24 +35,47 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     String[] items;
 
+    private BottomNavigationView navigationMenu;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        init();// Инициализация компонентов пользовательского интерфейса
 
         listView = findViewById(R.id.listViewSong);
 
         runtimePermission();
+        // Обработчик кликов по элементам нижней навигации
+        navigationMenu.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int itemId = item.getItemId();
+                if (itemId ==R.id.music)
+                {
+                // Обработка клика на элементе "music" в нижней навигации
+                }
+                else if (itemId == R.id.playlist)
+                {
+                    startActivity(new Intent(MainActivity.this,Album.class));
+                    // Запуск активности Album при клике на элементе "playlist"
+                }
+
+                return true;
+            }
+        });
+
 
 
     }
+    // Проверка разрешений на выполнение приложения
     public void runtimePermission()
     {
         Dexter.withContext(this).withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO)
                 .withListener(new MultiplePermissionsListener() {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
-                        displaySongs();
+                        displaySongs();// Отображение списка песен
                     }
 
                     @Override
@@ -58,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
                 }).check();
 
     }
-
+    // Поиск песен в указанной директории
     public ArrayList<File> findSong (File file)
     {
         ArrayList<File> arrayList = new ArrayList<>();
@@ -79,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return arrayList;
     }
-
+    // Отображение списка песен
     void displaySongs()
     {
         final ArrayList<File> mySongs = findSong(Environment.getExternalStorageDirectory());
@@ -94,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
 
         customAdapter customAdapter = new customAdapter();
         listView.setAdapter(customAdapter);
-
+        // Обработчик кликов по элементам списка песен
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long id) {
@@ -106,7 +133,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+    // Инициализация компонентов пользовательского интерфейса
+    private void init()
+    {
+        navigationMenu = (BottomNavigationView) findViewById(R.id.navigation_panel);
+    }
+    // Адаптер для отображения элементов списка песен
     class customAdapter extends BaseAdapter{
 
 

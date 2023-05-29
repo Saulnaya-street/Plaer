@@ -9,6 +9,7 @@ import android.media.Image;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 import android.os.Handler;
 import android.view.MenuItem;
@@ -67,6 +68,7 @@ public class PlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
+        Log.d("PlayerActivity", "onCreate called");
 /* вылетает приложение из за этого
         getSupportActionBar().setTitle("Now Playing");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -74,7 +76,7 @@ public class PlayerActivity extends AppCompatActivity {
 
  */
 
-
+        // Инициализация компонентов пользовательского интерфейса
         btnprev = findViewById(R.id.btnprev);
         btnnext = findViewById(R.id.btnnext);
         btnplay = findViewById(R.id.playbtn);
@@ -86,26 +88,32 @@ public class PlayerActivity extends AppCompatActivity {
         seekmusic = findViewById(R.id.seekbar);
         visualizer = findViewById(R.id.blast);
         imageView = findViewById(R.id.imageview);
-
+        // Остановить предыдущее воспроизведение
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();
         }
         Intent i = getIntent();
-        Bundle bundle = i.getExtras();
-
-        mySongs = (ArrayList) bundle.getParcelableArrayList("songs");
+        mySongs = (ArrayList<File>) i.getSerializableExtra("songs");
         String songName = i.getStringExtra("songname");
-        position = bundle.getInt("pos", 0);
+        position = i.getIntExtra("pos", 0);
         txtsname.setSelected(true);
         Uri uri = Uri.parse(mySongs.get(position).toString());
         sname = mySongs.get(position).getName();
         txtsname.setText(sname);
-
         mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
-        mediaPlayer.start();
-
-
+        if(mediaPlayer != null) {
+            mediaPlayer.start();
+        } else {
+            Log.e("PlayerActivity", "Не удалось создать MediaPlayer");
+        }
+        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                return true;
+            }
+        });
+                                           // Поток для обновления позиции SeekBar
         updateseekbar = new Thread()
         {
             @Override
@@ -136,12 +144,12 @@ public class PlayerActivity extends AppCompatActivity {
         seekmusic.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-
+                // Обработка изменения позиции SeekBar
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
+                // Обработка начала трека позиции SeekBar
             }
 
             @Override
@@ -167,7 +175,7 @@ public class PlayerActivity extends AppCompatActivity {
 
 
 
-
+        // Обработчик кнопки воспроизведения
         btnplay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -181,20 +189,20 @@ public class PlayerActivity extends AppCompatActivity {
             }
         });
         //next listener
-
+        // Обработчик события окончания воспроизведения песни
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
                 btnnext.performClick();
             }
         });
-//good
+        // Установка аудиосессии для визуализации звука
         int audiosessionId = mediaPlayer.getAudioSessionId();
         if (audiosessionId !=1)
         {
             visualizer.setAudioSessionId(audiosessionId);
         }
-
+        // Обработчик кнопки следующей песни
         btnnext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -216,7 +224,7 @@ public class PlayerActivity extends AppCompatActivity {
             }
         });
 
-
+        // Обработчик кнопки предыдущей песни
         btnprev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -238,7 +246,7 @@ public class PlayerActivity extends AppCompatActivity {
                 }
             }
         });
-
+        // Обработчик кнопки перемотки вперед
         btnff.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -248,6 +256,7 @@ public class PlayerActivity extends AppCompatActivity {
             }
         }
     });
+        // Обработчик кнопки перемотки назад
     btnfr.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -259,7 +268,7 @@ public class PlayerActivity extends AppCompatActivity {
     });
     }
 
-
+    // Метод для запуска анимации вращения изображения
       public void startAnimation(View view)
     {
         ObjectAnimator animator = ObjectAnimator.ofFloat(imageView,"rotation",0f,360f);
@@ -269,7 +278,7 @@ public class PlayerActivity extends AppCompatActivity {
         animatorSet.start();
 
     }
-
+    // Метод для преобразования длительности аудиофайла в формат времени
     public String createTime(int durration) {
         String time = "";
         int min = durration / 1000/60;
